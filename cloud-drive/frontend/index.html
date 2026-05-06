@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Cloud Drive</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f5f5f5;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.file {
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-top: 8px;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.folder {
+    background: #e8f0fe;
+}
+
+button {
+    margin: 3px;
+    cursor: pointer;
+}
+
+.topbar {
+    display:flex;
+    justify-content:space-between;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📁 Cloud Drive</h2>
+
+<div class="topbar">
+    <div>📍 <span id="path"></span></div>
+    <button onclick="back()">🔙 返回</button>
+</div>
+
+<hr>
+
+<h3>📤 上傳</h3>
+<input type="file" id="fileInput" multiple>
+<input type="file" id="folderInput" webkitdirectory multiple>
+<button onclick="upload()">上傳</button>
+
+<hr>
+
+<h3>📁 檔案列表</h3>
+<div id="list"></div>
+
+</div>
+
+<script>
+
+const API = "http://127.0.0.1:8000";
+
+let currentPath = "";
+
+// 📍 更新路徑
+function updatePath() {
+    document.getElementById("path").innerText = "/" + (currentPath || "");
+}
+
+
+// 📁 載入
+async function load() {
+
+    updatePath();
+
+    const res = await fetch(`${API}/list?path=${currentPath}`);
+    const data = await res.json();
+
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    // 📁 folders
+    data.folders.forEach(name => {
+
+        const full = currentPath ? currentPath + "/" + name : name;
+
+        const div = document.createElement("div");
+        div.className = "file folder";
+
+        div.innerHTML = `
+            📁 ${name}
+            <br>
+            <button onclick="openFolder('${full}')">開啟</button>
+            <button onclick="del('${full}')">刪除資料夾</button>
+        `;
+
+        list.appendChild(div);
+    });
+
+    // 📄 files
+    data.files.forEach(name => {
+
+        const full = currentPath ? currentPath + "/" + name : name;
+
+        const div = document.createElement("div");
+        div.className = "file";
+
+        div.innerHTML = `
+            📄 ${name}
+            <br>
+            <a href="${API}/download?path=${full}" target="_blank">下載</a>
+            <button onclick="del('${full}')">刪除</button>
+        `;
+
+        list.appendChild(div);
+    });
+}
+
+
+// 📂 開資料夾
+function openFolder(path) {
+    currentPath = path;
+    load();
+}
+
+
+// 🔙 返回
+function back() {
+    if (!currentPath) return;
+
+    let parts = currentPath.split("/");
+    parts.pop();
+    currentPath = parts.join("/");
+
+    load();
+}
+
+
+// 📤 上傳
+async function upload() {
+
+    const files = [
+        ...document.getElementById("fileInput").files,
+        ...document.getElementById("folderInput").files
+    ];
+
+    const formData = new FormData();
+
+    for (let f of files) {
+        formData.append("files", f);
+    }
+
+    await fetch(API + "/upload", {
+        method: "POST",
+        body: formData
+    });
+
+    alert("上傳完成");
+    load();
+}
+
+
+// ❌ 刪除（檔案 / 資料夾）
+async function del(path) {
+
+    const res = await fetch(API + "/delete?path=" + path, {
+        method: "DELETE"
+    });
+
+    const data = await res.json();
+
+    if (data.ok) {
+        alert("刪除成功：" + data.type);
+    } else {
+        alert("刪除失敗");
+    }
+
+    load();
+}
+
+load();
+
+</script>
+
+</body>
+</html>
