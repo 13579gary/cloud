@@ -23,7 +23,6 @@ body {
     border: 1px solid #ddd;
     margin-top: 8px;
     border-radius: 8px;
-    background: #fff;
 }
 
 .folder {
@@ -57,6 +56,7 @@ button {
 <hr>
 
 <h3>📤 上傳</h3>
+
 <input type="file" id="fileInput" multiple>
 <input type="file" id="folderInput" webkitdirectory multiple>
 <button onclick="upload()">上傳</button>
@@ -70,7 +70,7 @@ button {
 
 <script>
 
-const API = "http://127.0.0.1:8000";
+const API = ""; // ✅ 重點：Render 用同網域
 
 let currentPath = "";
 
@@ -80,12 +80,12 @@ function updatePath() {
 }
 
 
-// 📁 載入
+// 📁 載入資料
 async function load() {
 
     updatePath();
 
-    const res = await fetch(`${API}/list?path=${currentPath}`);
+    const res = await fetch(`/list?path=${currentPath}`);
     const data = await res.json();
 
     const list = document.getElementById("list");
@@ -120,7 +120,7 @@ async function load() {
         div.innerHTML = `
             📄 ${name}
             <br>
-            <a href="${API}/download?path=${full}" target="_blank">下載</a>
+            <a href="/download?path=${full}" target="_blank">下載</a>
             <button onclick="del('${full}')">刪除</button>
         `;
 
@@ -143,12 +143,11 @@ function back() {
     let parts = currentPath.split("/");
     parts.pop();
     currentPath = parts.join("/");
-
     load();
 }
 
 
-// 📤 上傳
+// 📤 上傳（🔥 已修好）
 async function upload() {
 
     const files = [
@@ -162,30 +161,21 @@ async function upload() {
         formData.append("files", f);
     }
 
-    await fetch(API + "/upload", {
+    await fetch("/upload", {
         method: "POST",
         body: formData
     });
 
-    alert("上傳完成");
     load();
 }
 
 
-// ❌ 刪除（檔案 / 資料夾）
+// ❌ 刪除
 async function del(path) {
 
-    const res = await fetch(API + "/delete?path=" + path, {
+    await fetch("/delete?path=" + path, {
         method: "DELETE"
     });
-
-    const data = await res.json();
-
-    if (data.ok) {
-        alert("刪除成功：" + data.type);
-    } else {
-        alert("刪除失敗");
-    }
 
     load();
 }
