@@ -1,13 +1,16 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-import os, shutil
 from fastapi.staticfiles import StaticFiles
+import os
+import shutil
+
 app = FastAPI()
 
 BASE_DIR = "uploads"
 os.makedirs(BASE_DIR, exist_ok=True)
 
+# ✅ CORS（雲端必備）
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,7 +18,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 📤 上傳（支援資料夾結構）
+# 🌐 前端直接上線
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
+
+# 📤 上傳檔案 / 資料夾
 @app.post("/upload")
 async def upload(files: list[UploadFile] = File(...)):
 
@@ -29,7 +36,7 @@ async def upload(files: list[UploadFile] = File(...)):
     return {"ok": True}
 
 
-# 📁 列表
+# 📁 檔案列表
 @app.get("/list")
 def list_dir(path: str = ""):
 
@@ -72,4 +79,3 @@ def delete(path: str):
         return {"ok": True, "type": "file"}
 
     return {"ok": False}
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
