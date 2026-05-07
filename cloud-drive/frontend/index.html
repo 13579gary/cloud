@@ -412,6 +412,7 @@ async function upload(){
     }
 
     const formData = new FormData();
+    formData.append("path", currentPath)
 
     for(let f of files){
         formData.append("files", f);
