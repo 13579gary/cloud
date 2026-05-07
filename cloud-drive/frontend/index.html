@@ -1,56 +1,270 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Cloud Drive</title>
 
 <style>
-body { font-family: Arial; background:#f5f5f5; }
-.container {
-    max-width:900px;
-    margin:auto;
-    background:white;
-    padding:15px;
-    border-radius:10px;
-}
-.file {
-    padding:10px;
-    border:1px solid #ddd;
-    margin-top:8px;
-    border-radius:8px;
-}
-.folder {
-    background:#e8f0fe;
-}
-button { margin:3px; cursor:pointer; }
-.topbar { display:flex; justify-content:space-between; }
-</style>
 
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:#f3f6fb;
+    color:#333;
+}
+
+/* container */
+.container{
+    max-width:1000px;
+    margin:40px auto;
+    background:#fff;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* title */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.header h2{
+    margin:0;
+    font-size:28px;
+    color:#2563eb;
+}
+
+/* topbar */
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#eef4ff;
+    padding:12px 16px;
+    border-radius:12px;
+    margin-bottom:25px;
+}
+
+.path{
+    font-weight:600;
+    color:#1e40af;
+}
+
+/* upload */
+.upload-box{
+    background:#fafafa;
+    border:2px dashed #cbd5e1;
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:30px;
+}
+
+.upload-box h3{
+    margin-top:0;
+}
+
+.upload-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:15px;
+}
+
+/* buttons */
+button{
+    border:none;
+    padding:10px 16px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    transition:0.2s;
+}
+
+button:hover{
+    transform:translateY(-1px);
+}
+
+.btn-blue{
+    background:#2563eb;
+    color:white;
+}
+
+.btn-red{
+    background:#ef4444;
+    color:white;
+}
+
+.btn-gray{
+    background:#64748b;
+    color:white;
+}
+
+.btn-folder{
+    background:#f59e0b;
+    color:white;
+}
+
+a.download-link{
+    display:inline-block;
+    padding:10px 16px;
+    background:#10b981;
+    color:white;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:600;
+}
+
+/* sections */
+.section-title{
+    margin-bottom:15px;
+    font-size:22px;
+    font-weight:bold;
+}
+
+/* grid */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:18px;
+}
+
+/* card */
+.card{
+    border-radius:18px;
+    padding:18px;
+    transition:0.25s;
+    border:1px solid #e5e7eb;
+}
+
+.card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 20px rgba(0,0,0,0.08);
+}
+
+/* folder */
+.folder-card{
+    background:linear-gradient(135deg,#fff7ed,#ffedd5);
+    border-left:6px solid #f59e0b;
+}
+
+/* file */
+.file-card{
+    background:linear-gradient(135deg,#eff6ff,#dbeafe);
+    border-left:6px solid #2563eb;
+}
+
+.icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+.name{
+    font-size:18px;
+    font-weight:bold;
+    word-break:break-word;
+    margin-bottom:15px;
+}
+
+/* actions */
+.actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.empty{
+    padding:30px;
+    text-align:center;
+    color:#888;
+    background:#fafafa;
+    border-radius:15px;
+}
+
+/* responsive */
+@media(max-width:600px){
+
+    .container{
+        margin:15px;
+        padding:18px;
+    }
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+}
+
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>📁 Cloud Drive</h2>
+    <div class="header">
+        <h2>☁️ Cloud Drive</h2>
+    </div>
 
-<div class="topbar">
-    <div>📍 <span id="path"></span></div>
-    <button onclick="back()">🔙 返回</button>
-</div>
+    <!-- path -->
+    <div class="topbar">
+        <div class="path">
+            📍 路徑：/<span id="path"></span>
+        </div>
 
-<hr>
+        <button class="btn-gray" onclick="back()">
+            🔙 返回上一層
+        </button>
+    </div>
 
-<h3>📤 上傳</h3>
+    <!-- upload -->
+    <div class="upload-box">
 
-<input type="file" id="fileInput" multiple>
-<input type="file" id="folderInput" webkitdirectory multiple>
-<button onclick="upload()">上傳</button>
+        <h3>📤 上傳檔案 / 資料夾</h3>
 
-<hr>
+        <input type="file" id="fileInput" multiple>
+        <br><br>
 
-<h3>📁 檔案列表</h3>
-<div id="list"></div>
+        <input type="file" id="folderInput" webkitdirectory multiple>
+
+        <div class="upload-actions">
+            <button class="btn-blue" onclick="upload()">
+                ⬆️ 開始上傳
+            </button>
+        </div>
+
+    </div>
+
+    <!-- folders -->
+    <div class="section-title">
+        📁 資料夾
+    </div>
+
+    <div id="folderList" class="grid"></div>
+
+    <br>
+
+    <!-- files -->
+    <div class="section-title">
+        📄 檔案
+    </div>
+
+    <div id="fileList" class="grid"></div>
 
 </div>
 
@@ -58,109 +272,175 @@ button { margin:3px; cursor:pointer; }
 
 let currentPath = "";
 
-// 📁 載入
-async function load() {
+// 載入資料
+async function load(){
 
-    document.getElementById("path").innerText = "/" + currentPath;
+    document.getElementById("path").innerText = currentPath;
 
     const res = await fetch("/list?path=" + currentPath);
     const data = await res.json();
 
-    const list = document.getElementById("list");
-    list.innerHTML = "";
+    const folderList = document.getElementById("folderList");
+    const fileList = document.getElementById("fileList");
 
-    // 📁 folders
-    data.folders.forEach(name => {
+    folderList.innerHTML = "";
+    fileList.innerHTML = "";
 
-        const full = currentPath ? currentPath + "/" + name : name;
+    // folders
+    if(data.folders.length === 0){
+        folderList.innerHTML = `
+            <div class="empty">
+                沒有資料夾
+            </div>
+        `;
+    }
+
+    data.folders.forEach(name=>{
+
+        const full = currentPath
+            ? currentPath + "/" + name
+            : name;
 
         const div = document.createElement("div");
-        div.className = "file folder";
+
+        div.className = "card folder-card";
 
         div.innerHTML = `
-            📁 ${name}
-            <br>
-            <button onclick="openFolder('${full}')">開啟</button>
-            <button onclick="downloadFolder('${full}')">📦下載</button>
-            <button onclick="del('${full}')">刪除</button>
+            <div class="icon">📁</div>
+
+            <div class="name">${name}</div>
+
+            <div class="actions">
+                <button class="btn-folder"
+                    onclick="openFolder('${full}')">
+                    開啟
+                </button>
+
+                <button class="btn-blue"
+                    onclick="downloadFolder('${full}')">
+                    📦下載
+                </button>
+
+                <button class="btn-red"
+                    onclick="del('${full}')">
+                    刪除
+                </button>
+            </div>
         `;
 
-        list.appendChild(div);
+        folderList.appendChild(div);
     });
 
-    // 📄 files
-    data.files.forEach(name => {
+    // files
+    if(data.files.length === 0){
+        fileList.innerHTML = `
+            <div class="empty">
+                沒有檔案
+            </div>
+        `;
+    }
 
-        const full = currentPath ? currentPath + "/" + name : name;
+    data.files.forEach(name=>{
+
+        const full = currentPath
+            ? currentPath + "/" + name
+            : name;
 
         const div = document.createElement("div");
-        div.className = "file";
+
+        div.className = "card file-card";
 
         div.innerHTML = `
-            📄 ${name}
-            <br>
-            <a href="/download?path=${full}" target="_blank">下載</a>
-            <button onclick="del('${full}')">刪除</button>
+            <div class="icon">📄</div>
+
+            <div class="name">${name}</div>
+
+            <div class="actions">
+
+                <a class="download-link"
+                    href="/download?path=${full}"
+                    target="_blank">
+                    ⬇️下載
+                </a>
+
+                <button class="btn-red"
+                    onclick="del('${full}')">
+                    刪除
+                </button>
+
+            </div>
         `;
 
-        list.appendChild(div);
+        fileList.appendChild(div);
     });
 }
 
 
-// 📂 開資料夾
-function openFolder(path) {
+// 開資料夾
+function openFolder(path){
     currentPath = path;
     load();
 }
 
 
-// 🔙 返回
-function back() {
-    if (!currentPath) return;
+// 返回
+function back(){
+
+    if(!currentPath) return;
 
     let parts = currentPath.split("/");
+
     parts.pop();
+
     currentPath = parts.join("/");
+
     load();
 }
 
 
-// 📤 上傳
-async function upload() {
+// 上傳
+async function upload(){
 
     const files = [
         ...document.getElementById("fileInput").files,
         ...document.getElementById("folderInput").files
     ];
 
+    if(files.length === 0){
+        alert("請選擇檔案");
+        return;
+    }
+
     const formData = new FormData();
 
-    for (let f of files) {
+    for(let f of files){
         formData.append("files", f);
     }
 
     await fetch("/upload", {
-        method: "POST",
-        body: formData
+        method:"POST",
+        body:formData
     });
 
     load();
 }
 
 
-// ❌ 刪除
-async function del(path) {
-    await fetch("/delete?path=" + path, {
-        method: "DELETE"
+// 刪除
+async function del(path){
+
+    if(!confirm("確定刪除？")) return;
+
+    await fetch("/delete?path=" + path,{
+        method:"DELETE"
     });
 
     load();
 }
 
 
-// 📦 下載資料夾
-function downloadFolder(path) {
+// 下載資料夾
+function downloadFolder(path){
     window.open("/download-folder?path=" + path, "_blank");
 }
 
